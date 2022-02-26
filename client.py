@@ -14,7 +14,7 @@ clientes = [
     {"nome": "Antonio", "endereco": "Rua dfggd"}
 ]
 
-for cliente in clientes:  
+for cliente in clientes:
     requests.post(f"{url}/cliente", json=cliente)
 
 r = requests.get(f"{url}/cliente")
