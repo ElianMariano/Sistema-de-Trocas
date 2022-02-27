@@ -21,6 +21,5 @@ def main():
         backend.close()
         ctx.term()
 
-
 if __name__ == "__main__":
     main()
