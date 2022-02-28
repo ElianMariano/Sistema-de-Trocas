@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, ForeignKey
+from sqlalchemy import create_engine, ForeignKey, null
 from sqlalchemy import Column, Date, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -14,7 +14,11 @@ class Cliente(Base):
 
     id = Column(Integer, primary_key=True)
     nome = Column(String, nullable=False)
+    cpf = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    nascimento = Column(Date, nullable=False)
     endereco = Column(String, nullable=False)
+    senha = Column(String, nullable=False)
 
     def __repr__(self):
         return f"Cliente {self.nome}"
@@ -26,6 +30,7 @@ class Produto(Base):
     id = Column(Integer, primary_key=True)
     cliente_id = Column(Integer, ForeignKey("cliente.id"))
     nome = Column(String, nullable=False)
+    descricao = Column(String, nullable=False)
     preco = Column(Float, nullable=False)
 
     def __repr__(self) -> str:
@@ -36,14 +41,20 @@ class Carrinho(Base):
     __tablename__ = "carrinho"
     id = Column(Integer, primary_key=True)
     produto_id = Column(Integer, ForeignKey("produto.id"))
+    quantidade = Column(Integer, nullable=False)
 
+class Anuncio(Base):
+    __tablename__ = "anuncio"
+    id = Column(Integer, primary_key=True)
+    produto_id = Column(Integer, ForeignKey("produto.id"))
+    descricao = Column(String, nullable=False)
+    de_cliente = Column(Integer, ForeignKey("cliente.id"))
+    data = Column(Date, nullable=False)
 
 class Troca(Base):
-
     __tablename__ = "troca"
-
     id = Column(Integer, primary_key=True)
-    de_cliente = Column(Integer, ForeignKey("cliente.id"))
+    anuncio = Column(Integer, ForeignKey("anuncio.id"))
     para_cliente = Column(Integer, ForeignKey("cliente.id"))
 
 

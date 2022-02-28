@@ -11,17 +11,20 @@ IP_ADDRESS = '10.0.1.1'
 TOPIC = None
 fila_msgs = []
 
+# 
 def receberContrAtividade():
     while True:
         ctx = zmq.Context()
         sock = ctx.socket(zmq.SUB)
         sock.connect(f"tcp://{IP_ADDRESS}:5501")
     
-        TOPIC = 'subProcesso'
+        TOPIC = 'troca'
         sock.subscribe(f"{TOPIC}")
         msg_string = sock.recv_string()
         msg_json = sock.recv_json()
         print(msg_json)
+
+        # Valida os dados
         data = msg_json
         data_converted = json.loads(data)
         codigo = data_converted['codigo']
@@ -47,8 +50,8 @@ def receberContrAtividade():
             msg_json = json.dumps(msg)
             fila_msgs.append(msg_json)
             print("teste")
-    
 
+# Envia os dados de confirmacao para o broker
 def enviar():
     ctx = zmq.Context()
     sock = ctx.socket(zmq.PUB)
