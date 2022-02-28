@@ -96,7 +96,7 @@ def verPerfil():
     sock.connect(f"tcp://{IP_ADDRESS}:5501")
     while True:
         # Recebe os dados do usuario
-        TOPIC = 'enviarpefil'
+        TOPIC = 'dados_usuario'
         sock.subscribe(f"{TOPIC}")
         msg_string = sock.recv_string()
         msg_json = sock.recv_json()
@@ -104,19 +104,21 @@ def verPerfil():
 
         # Mostra os dados do usuario
         data = msg_json
-        data_converted = json.loads(data) 
-        nome =  data_converted['nomee']
-        dataNasc = data_converted['dataNascimentoo']
-        cpf = data_converted['cpff']
-        email = data_converted['emaill'] 
-        senha = data_converted['senhaa']
+        converted = json.loads(data) 
+        nome =  converted['nome']
+        dataNasc = converted['nascimento']
+        cpf = converted['cpf']
+        email = converted['email'] 
+        senha = converted['senha']
         os.system('clear') or None
-        print("       lista dos dados do usuario")
+
+        print("================================")
         print("Nome : " + nome)
         print("Data de Nascimento : " + dataNasc)
         print("CPF : " + cpf)
         print("Email : " + email)
         print("Senha : " + senha)
+        print("================================")
 
 # Recebe lista de compras
 def receberLista():

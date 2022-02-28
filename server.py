@@ -32,25 +32,8 @@ def usuario():
         print(msg_json)
         data_converted = json.loads(msg_json)
         codigo = data_converted['codigo']
-        email = data_converted['emaill']
-        arquivo = open('cadastro.txt', 'r')
-        email = '"' + email + '"' + ','
+        email = data_converted['email']
         #print(email)
-        
-        for linha in arquivo:
-            val = linha.split()
-            #print(val[11])
-            if (email == val[11] ):
-                print(val[11])
-                msg= {}
-                msg ['codigo'] = 6
-                msg ['nomee'] = val[5]
-                msg ['dataNascimentoo'] = val[7]
-                msg ['cpff'] = val[9]
-                msg ['emaill'] = val[11]
-                msg ['senhaa'] = val[13]
-                msg_json = json.dumps(msg)
-                fila_msgs.append(msg_json) 
 
 # Envia os dados para o broker
 def enviar():
@@ -71,40 +54,41 @@ def enviar():
         
         if(codigo == 3):
             msg_json = data
-            TOPIC = 'confirmacao'     
+            TOPIC = 'confirmacao'
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json) 
             codigo = 5
-        if(codigo == 6):
+        elif(codigo == 6):
             msg_json = data
-            TOPIC = 'enviarpefil'    
+            TOPIC = 'dados_usuario'
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json) 
             codigo = 5
-        if(codigo == 8):
+        elif(codigo == 8):
             msg_json = data
-            TOPIC = 'enviarlista'    
+            TOPIC = 'enviarlista'
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json) 
             codigo = 5
-        if(codigo == 9):
+        elif(codigo == 9):
             msg_json = data
-            TOPIC = 'enviarcontrrr'   
+            TOPIC = 'enviarcontrrr'
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json) 
             codigo = 5 
-        if codigo == 15:
+        elif codigo == 15:
             msg_json = data
-            TOPIC = 'finalizar'   
+            TOPIC = 'finalizar'
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json) 
             codigo = 5 
-        if(codigo == 11):
+        elif(codigo == 11):
             msg_json = data
             TOPIC = 'finalizar'       
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json) 
             codigo = 5
+
 def login():
     while True:
         ctx = zmq.Context()
@@ -264,8 +248,8 @@ def confirmarTroca():
 def server():
     _thread.start_new_thread(cadastrar,())
     _thread.start_new_thread(login,())
-    _thread.start_new_thread(enviar,()) # Refatorar
-    _thread.start_new_thread(usuario,()) # Refatorar
+    _thread.start_new_thread(enviar,())
+    _thread.start_new_thread(usuario,())
     _thread.start_new_thread(produto, ())
     _thread.start_new_thread(carrinho, ())
     _thread.start_new_thread(anuncio, ())
