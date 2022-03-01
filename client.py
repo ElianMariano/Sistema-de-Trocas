@@ -176,7 +176,7 @@ def client():
         if opc == '2':
             os.system('clear') or None
             nome = input("Digite o seu nome: ")
-            dataNascimento = input("Digite sua data Nascimento: ")
+            nascimento = input("Digite sua data Nascimento: ")
             endereco = input("Digite seu endereço: ")
             cpf = input("Digite seu cpf: ")
             email = input("Digite seu Email: ")
@@ -185,96 +185,15 @@ def client():
             msg ['codigo'] = 2
             msg ['codigo2'] = 2
             msg ['nome'] = nome
-            msg ['dataNascimento'] = dataNascimento
+            msg ['nascimento'] = nascimento
             msg ['endereco'] = endereco
             msg ['cpf'] = cpf
             msg ['email'] = email
-            msg ['senha'] = senha 
+            msg ['senha'] = senha
+
             msg_json = json.dumps(msg)
             fila_msgs.append(msg_json)
-            ri = 'sim'
 
-        opcEntrada = None       
-        time.sleep(3)
-        os.system('clear') or None
-        fant = conf
-
-        if(str(fant) == '[\'sim\']'):
-            opcEntrada = 10
-            conf.pop(0)
-
-        else:
-            opcEntrada = None 
-
-        if opcEntrada == None :
-            if(ri == 'sim'):
-                print("Cadastro realizado com sucesso")
-                ri = 'nao'
-            else: 
-
-                print("Houve um erro de conecçao tente mais tarde ou sua senha/login estao invalidos")
-            time.sleep(5)
-
-        if opcEntrada == 10 :
-            print("Login Realizado com Sucesso")
-            opcEntrada = 11
-            time.sleep(3)
-
-        if opcEntrada == 11 : 
-            while opc != 5:
-                os.system('clear') or None
-                print(" 1 - Listar Anuncios")
-                print(" 2 - Perfil ")
-                print(" 3 - Criar anuncio")
-                print(" 4 - Realizar troca")
-                print(" 5 - Sair")
-                opc = input('Digite sua Opçao: ')
-
-                if opc == '1' :
-                    os.system('clear') or None
-                    print("Lista dos anuncios")
-                    msg= {}
-                    msg ['codigo'] = 9
-                    msg_json = json.dumps(msg)
-                    fila_msgs.append(msg_json)
-                    time.sleep(10)
-
-                if opc == '2' :
-                    msg= {}
-                    msg ['codigo'] = 4
-                    msg ['email'] = email
-                    msg_json = json.dumps(msg)
-                    fila_msgs.append(msg_json)
-                    time.sleep(10)
-                
-                if opc == '3' :
-                    os.system('clear') or None
-                    produto_id = input('Digite o ID do produto: ')
-                    descricao = input('Digite a descricao do anuncio: ')
-                    email = input('Digite o seu email: ')                    
-
-                    msg = {}
-                    msg ['codigo'] = 2
-                    msg ['codigo2'] = 2
-                    msg ['produto_id': produto_id]
-                    msg ['descricao': descricao]
-                    msg ['email': email]
-                    msg_json = json.dumps(msg)
-                    fila_msgs.append(msg_json)
-                    time.sleep(5)
-                
-                if opc == '4':
-                    os.system('clear') or None
-                    anuncio_id = input('Digite o ID do anuncio a ser realizado: ')
-                    msg = {}
-                    msg ['codigo'] = 10
-                    msg ['codigo2'] = 10
-                    msg ['anuncio_id': anuncio_id]
-                    msg_json = json.dumps(msg)
-                    fila_msgs.append(msg_json)
-                    time.sleep(5)
-                
-
-
+        
 if __name__ == "__main__":
     client()
