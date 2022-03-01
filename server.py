@@ -4,13 +4,14 @@ import socket
 import _thread
 import json
 from time import time
+from datetime import datetime
 import zmq
 import sys
 import time
 from sqlalchemy.orm import sessionmaker
 from db import *
 
-IP_ADDRESS = '10.0.1.1'
+IP_ADDRESS = '127.0.0.1'
 TOPIC = None
 fila_msgs = []
 
@@ -72,7 +73,7 @@ def enviar():
             codigo = 5
         elif(codigo == 9):
             msg_json = data
-            TOPIC = 'enviarcontrrr'
+            TOPIC = 'anuncios'
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json) 
             codigo = 5 
@@ -111,7 +112,7 @@ def login():
         session = Session()
 
         # Obtem os resultados de acordo com o email e senha
-        cliente = session.query(User).filter_by(nome=converted['nome'], senha=converted['senha']).all()
+        cliente = session.query(Cliente).filter_by(email=converted['email'], senha=converted['senha']).all()
 
         print("Cliente logado")
         print(cliente)
@@ -130,13 +131,14 @@ def cadastrar():
         msg_json = sock.recv_json()
         converted = json.loads(msg_json)
         print(msg_json)
+        converted['dataNascimento'] = datetime.strptime(converted['dataNascimento'], '%d/%M/%Y')
 
         # Cria o objeto da secao
         Session = sessionmaker(bind=engine)
         session = Session()
 
         # Adiciona o cliente
-        cliente = Cliente(nome=converted['nome'], cpf=converted['cpf'], email=converted['email'], nascimento=converted['nascimento'], endereco=converted['endereco'], senha=converted['senha'])
+        cliente = Cliente(nome=converted['nome'], cpf=converted['cpf'], email=converted['email'], nascimento=converted['dataNascimento'], endereco=converted['endereco'], senha=converted['senha'])
         # Insere o cliente
         session.add(cliente)
         session.commit()
@@ -213,8 +215,10 @@ def anuncio():
         Session = sessionmaker(bind=engine)
         session = Session()
 
+        cliente = session.query(Cliente).filter_by(email=converted['email']).all()
+        data = datetime.now()
         # Adiciona o anuncio
-        anuncio = Anuncio(produto_id=converted['produto_id'], descricao=converted['descricao'], de_cliente=converted['de_cliente'], data=converted['data'])
+        anuncio = Anuncio(produto_id=converted['produto_id'], descricao=converted['descricao'], de_cliente=cliente.id, data=data)
         
         # Insere o anuncio
         session.add(anuncio)

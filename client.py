@@ -7,7 +7,7 @@ import os
 import time
 import zmq
 
-IP_ADDRESS = '10.0.1.1'
+IP_ADDRESS = '127.0.0.1'
 TOPIC = None
 fila_msgs = []
 
@@ -47,22 +47,15 @@ def enviar():
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json)
             codigo = 5
-        if codigo == 7:
-            msg_json = data
-            TOPIC = 'pedirlistafrutas'       
-            sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
-            sock.send_json(msg_json)
-            codigo = 5
         if codigo == 9:
             msg_json = data
-            TOPIC = 'comprarfruta'       
+            TOPIC = 'pedirListaAnuncios'       
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json)
             codigo = 5
-        # fazer
-        if codigo == 13:
+        if codigo == 10:
             msg_json = data
-            TOPIC = 'requisitarHist'       
+            TOPIC = 'anuncio'       
             sock.send_string(f"{TOPIC}", flags=zmq.SNDMORE)
             sock.send_json(msg_json)
             codigo = 5
@@ -88,6 +81,33 @@ def receberConfirmacao():
 
             # Adiciona a confirmacao
             conf.append(confirmacao)
+
+# Recebe a lista de anuncios
+def receberAnuncios():
+    ctx = zmq.Context()
+    sock = ctx.socket(zmq.SUB)
+    sock.connect(f"tcp://{IP_ADDRESS}:5501")
+    while True:
+        # Recebe os dados do usuario
+        TOPIC = 'anuncios'
+        sock.subscribe(f"{TOPIC}")
+        msg_string = sock.recv_string()
+        msg_json = sock.recv_json()
+        #print(msg_json)
+
+        # Mostra os dados do usuario
+        data = msg_json
+        anuncios = json.loads(data) 
+        os.system('clear') or None
+
+        for anuncio in anuncios:
+            print("================================")
+            print('Anuncio ID: ', anuncio['id'])
+            print('Produto ID: ', anuncio['produto_id'])
+            print('Descricao: ', anuncio['descricao'])
+            print('De cliente: ', anuncio['de_cliente'])
+            print('Data: ', anuncio['data'])
+            print("================================")
 
 # Recebe o perfil
 def verPerfil():
@@ -120,71 +140,11 @@ def verPerfil():
         print("Senha : " + senha)
         print("================================")
 
-# Recebe lista de compras
-def receberLista():
-    ctx = zmq.Context()
-    sock = ctx.socket(zmq.SUB)
-    sock.connect(f"tcp://{IP_ADDRESS}:5501")
-    while True:
-        TOPIC = 'enviarlista' 
-        sock.subscribe(f"{TOPIC}")
-        msg_string = sock.recv_string()
-        msg_json = sock.recv_json()
-        #print(msg_json)
-        data = msg_json
-        data_converted = json.loads(data) 
-        codigo =  data_converted['codigo']
-        #pr = data_converted['raa']
-        contador = data_converted['contador']
-        li = []
-        i=0
-        vallor = 'val'
-        f = int(contador)
-        for linha in range(f+1):
-            vallor = 'val' + str(i)
-            li.append(data_converted[vallor])
-            i = i +1
-        i=0
-        for linha in range(f+1):
-            print("Codigo: ",i, "  item: " ,li.pop(0))
-            i = i +1
-
-# Finaliza a compra
-def listHisto():
-    ctx = zmq.Context()
-    sock = ctx.socket(zmq.SUB)
-    sock.connect(f"tcp://{IP_ADDRESS}:5501")
-    while True:
-        TOPIC = 'finalizar' 
-        sock.subscribe(f"{TOPIC}")
-        msg_string = sock.recv_string()
-        msg_json = sock.recv_json()
-        #print(msg_json)
-        data = msg_json
-        data_converted = json.loads(data) 
-        codigo =  data_converted['codigo']
-        #pr = data_converted['raa']
-        contador = data_converted['contador']
-        li = []
-        i=0
-        vallor = 'val'
-        f = int(contador)
-        for linha in range(f+1):
-            vallor = 'val' + str(i)
-            li.append(data_converted[vallor])
-            i = i +1
-        i=0
-        for linha in range(f+1):
-            print("Codigo: ",i, "  item: " ,li.pop(0))
-            i = i +1
-
 # Roda o menu
 def client():
     _thread.start_new_thread(enviar,())
     _thread.start_new_thread(receberConfirmacao,())
     _thread.start_new_thread(verPerfil,())
-    _thread.start_new_thread(receberLista,())
-    _thread.start_new_thread(listHisto,())
 
     ri = 'nao'
     ctx = zmq.Context()
@@ -209,25 +169,27 @@ def client():
             msg= {}
             msg ['codigo'] = 1
             msg ['codigo2'] = 1
-            msg ['emaill'] = email
-            msg ['senhaa'] = senha   
+            msg ['email'] = email
+            msg ['senha'] = senha   
             msg_json = json.dumps(msg)
             fila_msgs.append(msg_json) 
         if opc == '2':
             os.system('clear') or None
             nome = input("Digite o seu nome: ")
             dataNascimento = input("Digite sua data Nascimento: ")
+            endereco = input("Digite seu endereço: ")
             cpf = input("Digite seu cpf: ")
             email = input("Digite seu Email: ")
             senha = input("Digite sua senha: ")
             msg= {}
             msg ['codigo'] = 2
             msg ['codigo2'] = 2
-            msg ['nomee'] = nome
-            msg ['dataNascimentoo'] = dataNascimento 
-            msg ['cpff'] = cpf
-            msg ['emaill'] = email
-            msg ['senhaa'] = senha 
+            msg ['nome'] = nome
+            msg ['dataNascimento'] = dataNascimento
+            msg ['endereco'] = endereco
+            msg ['cpf'] = cpf
+            msg ['email'] = email
+            msg ['senha'] = senha 
             msg_json = json.dumps(msg)
             fila_msgs.append(msg_json)
             ri = 'sim'
@@ -259,58 +221,60 @@ def client():
             time.sleep(3)
 
         if opcEntrada == 11 : 
-            while opc != 4:
+            while opc != 5:
                 os.system('clear') or None
-                print(" 1 - Listar Itens")
+                print(" 1 - Listar Anuncios")
                 print(" 2 - Perfil ")
-                print(" 3 - Historico de Compra")
-                print(" 4 - Sair")
+                print(" 3 - Criar anuncio")
+                print(" 4 - Realizar troca")
+                print(" 5 - Sair")
                 opc = input('Digite sua Opçao: ')
+
                 if opc == '1' :
                     os.system('clear') or None
-                    print("Lista dos produtos")
+                    print("Lista dos anuncios")
                     msg= {}
-                    msg ['codigo'] = 7
+                    msg ['codigo'] = 9
                     msg_json = json.dumps(msg)
                     fila_msgs.append(msg_json)
                     time.sleep(10)
-                    opc = input("Digite o Codigo do produto: ")
-                    os.system('clear') or None
-                    print("Dados do cartao")
-                    nomeTitular = input("Digite o nome do titular do cartao: ")
-                    codigoCartao = input("Digite o codigo do cartao: ")
-                    bandeiraCartao = input("Digite a bandeira: ")
-
-                    msg= {}
-                    msg ['codigo'] = 9
-                    msg ['emaill'] = email
-                    msg ['status'] = 'Enviado_Para_Analise'
-                    msg ['itencodigo'] = opc
-                    msg ['nometitu'] = nomeTitular
-                    msg ['codcart'] = codigoCartao
-                    msg ['bandeira'] = bandeiraCartao
-                    msg_json = json.dumps(msg)
-                    fila_msgs.append(msg_json)
-                    # Enviar para o servidor
-                    opc = None
 
                 if opc == '2' :
                     msg= {}
                     msg ['codigo'] = 4
-                    msg ['emaill'] = email
+                    msg ['email'] = email
                     msg_json = json.dumps(msg)
                     fila_msgs.append(msg_json)
                     time.sleep(10)
-
+                
                 if opc == '3' :
-                    msg= {}
-                    msg ['codigo'] = 13
-                    msg ['emaill'] = email
+                    os.system('clear') or None
+                    produto_id = input('Digite o ID do produto: ')
+                    descricao = input('Digite a descricao do anuncio: ')
+                    email = input('Digite o seu email: ')                    
+
+                    msg = {}
+                    msg ['codigo'] = 2
+                    msg ['codigo2'] = 2
+                    msg ['produto_id': produto_id]
+                    msg ['descricao': descricao]
+                    msg ['email': email]
                     msg_json = json.dumps(msg)
                     fila_msgs.append(msg_json)
+                    time.sleep(5)
+                
+                if opc == '4':
                     os.system('clear') or None
-                    print("Lista de historio de compra")
-                    time.sleep(10)
+                    anuncio_id = input('Digite o ID do anuncio a ser realizado: ')
+                    msg = {}
+                    msg ['codigo'] = 10
+                    msg ['codigo2'] = 10
+                    msg ['anuncio_id': anuncio_id]
+                    msg_json = json.dumps(msg)
+                    fila_msgs.append(msg_json)
+                    time.sleep(5)
+                
+
 
 if __name__ == "__main__":
     client()
